@@ -60,12 +60,18 @@ $groups = $stmt->fetchAll();
       <ul class="navbar-nav ms-auto">
         <li class="nav-item"><a class="nav-link" href="group_new.php">Crea gruppo</a></li>
 
-        <?php if (isset($_SESSION['user_id'])): ?>
-            <li class="nav-item">
-                <span class="nav-link disabled">Ciao, <?= htmlspecialchars($_SESSION['user_name']) ?></span>
-            </li>
-            <li class="nav-item"><a class="nav-link" href="profile.php">Profilo</a></li>
-            <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
+<?php if (isset($_SESSION['user_id'])): ?>
+    <?php if (is_admin()): ?>
+        >
+            <a class="nav-link text-warning" href="admin_dashboard.php">Admin</a>
+        </li>
+    <?php endif; ?>
+    >
+        <span class="nav-link disabled">Ciao, <?= htmlspecialchars($_SESSION['user_name']) ?></span>
+    </li>
+    ><a class="nav-link" href="profile.php">Profilo</a></li>
+    ><a class="nav-link" href="logout.php">Logout</a></li>
+
         <?php else: ?>
             <li class="nav-item"><a class="nav-link" href="register.php">Registrati</a></li>
             <li class="nav-item"><a class="nav-link" href="login.php">Login</a></li>
