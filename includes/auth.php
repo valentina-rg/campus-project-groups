@@ -1,5 +1,4 @@
 <?php
-// includes/auth.php
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -16,4 +15,9 @@ function require_login(): void
         header('Location: login.php');
         exit;
     }
+}
+
+function current_user_id(): ?int
+{
+    return is_logged_in() ? (int)$_SESSION['user_id'] : null;
 }

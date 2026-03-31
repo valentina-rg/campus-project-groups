@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/auth.php';
 
 $group = null;
 $members = [];
@@ -107,7 +108,33 @@ $members = $membersStmt->fetchAll();
                 <p><?= nl2br(htmlspecialchars($group['required_skills'])) ?></p>
             <?php endif; ?>
 
-            <!-- qui in futuro aggiungeremo il pulsante Partecipa / Lascia il gruppo -->
+            <?php
+            // dopo il blocco "Competenze richieste"
+            ?>
+
+            <?php if (is_logged_in()): ?>
+                <?php
+                // controlla membership per questo utente
+                $userId = current_user_id();
+                $memStmt = $pdo->prepare(
+                    "SELECT id FROM group_members WHERE group_id = :gid AND user_id = :uid LIMIT 1"
+                );
+                $memStmt->execute(['gid' => $groupId, 'uid' => $userId]);
+                $alreadyMember = (bool)$memStmt->fetch();
+                ?>
+                <div class="mt-4">
+                    <a href="group_join.php?id=<?= (int)$groupId ?>"
+                       class="btn btn-<?= $alreadyMember ? 'outline-danger' : 'primary' ?>">
+                        <?= $alreadyMember ? 'Esci dal gruppo' : 'Partecipa al gruppo' ?>
+                    </a>
+                </div>
+            <?php else: ?>
+                <div class="mt-4">
+                    <a href="login.php" class="btn btn-outline-primary">
+                        Fai login per partecipare
+                    </a>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </main>
