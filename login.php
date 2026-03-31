@@ -9,29 +9,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = 'Inserisci un indirizzo email valido.';
-    }
-
-    if ($password === '') {
-        $errors[] = 'Inserisci la password.';
-    }
-
-    if (!$errors) {
-        $stmt = $pdo->prepare("SELECT id, name, email, password_hash, role FROM users WHERE email = :email LIMIT 1");
+    if ($email === '' || $password === '') {
+        $errors[] = 'Compila tutti i campi.';
+    } else {
+        $stmt = $pdo->prepare("
+            SELECT id, name, email, password_hash, is_admin
+            FROM users
+            WHERE email = :email
+            LIMIT 1
+        ");
         $stmt->execute(['email' => $email]);
         $user = $stmt->fetch();
 
-        if (!$user || !password_verify($password, $user['password_hash'])) {
-            $errors[] = 'Email o password non corrette.';
-        } else {
-            $_SESSION['user_id'] = $user['id'];
+        if ($user && password_verify($password, $user['password_hash'])) {
+            session_regenerate_id(true);
+
+            $_SESSION['user_id'] = (int)$user['id'];
             $_SESSION['user_name'] = $user['name'];
             $_SESSION['user_email'] = $user['email'];
-            $_SESSION['user_role'] = $user['role'];
+            $_SESSION['is_admin'] = (int)$user['is_admin'];
 
             header('Location: index.php');
             exit;
+        } else {
+            $errors[] = 'Email o password non corretti.';
         }
     }
 }
